@@ -1,0 +1,10 @@
+Package: com.comex.attachanddetach
+Name: attach-and-detach
+Depends: 
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: use .dmgs on iOS
+Maintainer: danzatt
+Author: comex
+Section: System
+Tag: role::hacker
