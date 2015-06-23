@@ -29,7 +29,7 @@ int main(int argc, char **argv) {
     CFStringRef uuid = CFUUIDCreateString(NULL, CFUUIDCreate(NULL));
     CFMutableDictionaryRef props = CFDictionaryCreateMutable(NULL, 0, &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
     CFDictionarySetValue(props, CFSTR("hdik-unique-identifier"), uuid);
-    CFDataRef path = CFDataCreateWithBytesNoCopy(NULL, abspath, strlen(abspath), kCFAllocatorNull);
+    CFDataRef path = CFDataCreateWithBytesNoCopy(NULL, (UInt8 *) abspath, strlen(abspath), kCFAllocatorNull);
     assert(path);
     CFDictionarySetValue(props, CFSTR("image-path"), path);
     CFDataRef props_data = IOCFSerialize(props, 0);
@@ -39,6 +39,7 @@ int main(int argc, char **argv) {
         uint32_t magic;
         uint32_t one;
         char *props;
+        uint32_t null;
         uint32_t props_size;
         char ignored[0xf8 - 16];
     } stru;
@@ -51,7 +52,7 @@ int main(int argc, char **argv) {
     uint32_t val;
     size_t val_size = sizeof(val);
 
-    kern_return_t ret = IOConnectCallStructMethod(connect, 5, &stru, sizeof(stru), &val, &val_size);
+    kern_return_t ret = IOConnectCallStructMethod(connect, 5, &stru, 0x100, &val, &val_size);
     if(ret) {
         fprintf(stderr, "returned %x\n", ret);
         return 1;
@@ -71,7 +72,7 @@ int main(int argc, char **argv) {
     bool ok = false;
     io_iterator_t iter;
     assert(!IORegistryEntryCreateIterator(service, kIOServicePlane, kIORegistryIterateRecursively, &iter));
-    while(service = IOIteratorNext(iter)) {
+    while( (service = IOIteratorNext(iter)) ) {
         CFStringRef bsd_name = IORegistryEntryCreateCFProperty(service, CFSTR("BSD Name"), NULL, 0);
         if(bsd_name) {
             char buf[MAXPATHLEN];
